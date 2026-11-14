@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MZ-1500 ファイル置き場</title>
+<style>
+  body { background:#0e1116; color:#e6e9ee; font-family: system-ui, sans-serif; margin:0; padding:20px; }
+  h1 { font-size:20px; }
+  p.note { color:#8b96a9; font-size:13px; }
+  ul { list-style:none; padding:0; }
+  li { background:#171c24; border-radius:8px; margin:8px 0; padding:12px 14px; display:flex; justify-content:space-between; gap:12px; }
+  a { color:#58a6ff; text-decoration:none; word-break:break-all; }
+  .size { color:#8b96a9; font-size:13px; white-space:nowrap; }
+</style>
+</head>
+<body>
+<h1>📁 MZ-1500 ファイル置き場</h1>
+<p class="note">X などで共有するためのファイル置き場です。ファイル名をタップするとダウンロードできます。</p>
+<ul id="list"><li>読み込み中…</li></ul>
+<script>
+fetch('https://api.github.com/repos/hiromsa/mz1500-files/contents/files')
+  .then(r => r.json())
+  .then(items => {
+    const ul = document.getElementById('list');
+    ul.innerHTML = '';
+    const files = items.filter(i => i.type === 'file');
+    if (!files.length) { ul.innerHTML = '<li>まだファイルがありません</li>'; return; }
+    files.forEach(f => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = f.name;
+      a.textContent = f.name;
+      // Pages 上の実ファイルへのリンクに差し替え
+      a.href = 'files/' + f.name;
+      const s = document.createElement('span');
+      s.className = 'size';
+      s.textContent = f.size >= 1024 ? (f.size / 1024).toFixed(1) + ' KB' : f.size + ' B';
+      li.appendChild(a); li.appendChild(s);
+      ul.appendChild(li);
+    });
+  })
+  .catch(() => { document.getElementById('list').innerHTML = '<li>一覧を取得できませんでした</li>'; });
+</script>
+</body>
+</html>
